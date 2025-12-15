@@ -2,7 +2,6 @@ import { tables } from "@/lib/appwriteServer";
 import stringToColor from "@/lib/stringToColor";
 import { Liveblocks } from "@liveblocks/node";
 import { jwtVerify } from "jose";
-import { Rows } from "lucide-react";
 import { NextRequest, NextResponse } from "next/server";
 import { Query } from "node-appwrite";
 
