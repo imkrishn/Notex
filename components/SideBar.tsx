@@ -378,6 +378,7 @@ export default function SideBar() {
                         pages.map((p) => (
                           <Page
                             key={p.$id}
+                            email={email}
                             page={p}
                             loggedInUserId={id}
                             loggedInUserName={name}

@@ -5,8 +5,51 @@ import { Toaster } from "sonner";
 import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
-  title: "Notex",
-  description: "A new notion",
+  title: {
+    default: "Notex",
+    template: "%s | Notex",
+  },
+  description: "A modern note-taking app for productivity",
+  keywords: [
+    "notes",
+    "productivity",
+    "notex",
+    "knowledge base",
+    "note taking app",
+  ],
+  authors: [{ name: "Notex Team" }],
+  creator: "Notex",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_URL!),
+
+  openGraph: {
+    title: "Notex",
+    description: "Smart notes for modern thinking",
+    url: process.env.NEXT_PUBLIC_URL!,
+    siteName: "Notex",
+    images: [
+      {
+        url: "/logo.png",
+        width: 512,
+        height: 512,
+        alt: "Notex Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Notex",
+    description: "Smart notes for modern thinking",
+    images: ["/logo.png"],
+  },
+
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 const Roboto = localFont({

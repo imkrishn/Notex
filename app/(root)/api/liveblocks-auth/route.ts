@@ -2,6 +2,7 @@ import { tables } from "@/lib/appwriteServer";
 import stringToColor from "@/lib/stringToColor";
 import { Liveblocks } from "@liveblocks/node";
 import { jwtVerify } from "jose";
+import { Rows } from "lucide-react";
 import { NextRequest, NextResponse } from "next/server";
 import { Query } from "node-appwrite";
 
@@ -44,6 +45,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false }, { status: 404 });
     }
 
+    const page = await tables.getRow({
+      databaseId: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!,
+      tableId: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_PAGE_ID!,
+      rowId: pageId,
+    });
+
+    if (!page) {
+      return NextResponse.json({ success: false }, { status: 404 });
+    }
     // Fetch shared pages
     const sharedPages = await tables.listRows({
       databaseId: process.env.APPWRITE_DATABASE_ID!,

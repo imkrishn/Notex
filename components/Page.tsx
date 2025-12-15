@@ -22,11 +22,13 @@ import { RootState } from "@/redux/store";
 
 const Page = ({
   page,
+  email,
   loggedInUserId,
   loggedInUserName,
   setDeletedId,
 }: {
   page?: PageType;
+  email: string;
   loggedInUserId?: string;
   loggedInUserName?: string;
   setDeletedId: (id: string) => void;
@@ -100,6 +102,20 @@ const Page = ({
           parentId: page?.$id,
           title: "Untitled",
           isDeleted: false,
+        },
+      });
+
+      await databases.createRow({
+        databaseId: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!,
+        tableId: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_SHARED_PAGES_ID!,
+        rowId: ID.unique(),
+        data: {
+          pageId: newPage.$id,
+          ownerId: loggedInUserId,
+          sharedUserId: loggedInUserId,
+          permission: "FULL_ACCESS",
+          email,
+          active: true,
         },
       });
 
@@ -271,6 +287,7 @@ const Page = ({
           <>
             {childrens.map((child) => (
               <Page
+                email={email}
                 key={child.$id}
                 page={child}
                 loggedInUserId={loggedInUserId}
