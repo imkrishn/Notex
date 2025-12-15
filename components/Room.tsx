@@ -2,6 +2,9 @@ import { ReactNode } from "react";
 import { RoomProvider, ClientSideSuspense } from "@liveblocks/react/suspense";
 import Spinner from "./Spinner";
 import LiveCursorPointer from "./LiveCursorPointer";
+import { LiveList } from "@liveblocks/client";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export function Room({
   children,
@@ -17,10 +20,18 @@ export function Room({
         initialPresence={{
           cursor: null,
         }}
+        initialStorage={{
+          document: new LiveList<any>([]),
+        }}
       >
-        <ClientSideSuspense fallback={<Spinner size={40} color="#4e91df" />}>
+        <ClientSideSuspense
+          fallback={
+            <div className="flex items-center justify-center mt-7 w-full">
+              <Spinner size={40} color="#4e91df" />
+            </div>
+          }
+        >
           <LiveCursorPointer>{children}</LiveCursorPointer>
-          {children}
         </ClientSideSuspense>
       </RoomProvider>
     </div>

@@ -1,23 +1,17 @@
-// app/(public)/page.tsx  (or wherever your original page component lives)
 "use client";
 
 import Button from "@/components/ui/button";
 import logo from "@/public/logo.png";
 import Image from "next/image";
-import bgLight from "@/public/bg-light.png";
-import bgDark from "@/public/bg-dark.png";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Sparkles, CheckCircle } from "lucide-react";
+import Link from "next/link";
 
 const LandingPage = () => {
   const router = useRouter();
-  const { theme } = useTheme();
-
-  const bgImg = theme === "dark" ? bgDark : bgLight;
 
   return (
     <main className="min-h-screen w-full flex flex-col ">
@@ -204,18 +198,18 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-6 sm:px-8 py-4 text-sm text-(--color-neutral-content-light) flex justify-between items-center">
           <div>© {new Date().getFullYear()} Notex — Built for focus</div>
           <div className="flex items-center gap-4">
-            <a
+            <Link
               className="text-(--color-neutral-content-light) hover:text-(--color-neutral-content)"
               href="/"
             >
               Terms
-            </a>
-            <a
+            </Link>
+            <Link
               className="text-(--color-neutral-content-light) hover:text-(--color-neutral-content)"
               href="/"
             >
               Privacy
-            </a>
+            </Link>
           </div>
         </div>
       </footer>

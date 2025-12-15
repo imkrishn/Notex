@@ -155,7 +155,9 @@ const Page = ({
 
       setDeletedId(page.$id);
       setDeletedPageId(page.$id);
-      params[2] === page.$id && router.push(`/home/${loggedInUserName}`);
+      if (params[2] === page.$id) {
+        router.push(`/home/${loggedInUserName}`);
+      }
       toast.success("Page moved to trash.");
     } catch (err) {
       console.error("Failed to delete page:", err);

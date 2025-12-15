@@ -1,5 +1,7 @@
 import { databases } from "@/app/(root)/appwrite";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export async function updatePageData(pageId: string, data: any) {
   try {
     await databases.updateRow({

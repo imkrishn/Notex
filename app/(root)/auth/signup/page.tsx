@@ -19,7 +19,6 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { useRouter } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
 
 // Password validation

@@ -8,7 +8,7 @@ export default function LiveCursorProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [myPresence, setMyPresence] = useMyPresence();
+  const [, setMyPresence] = useMyPresence();
 
   const others = useOthers();
 

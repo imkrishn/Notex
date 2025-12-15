@@ -1,55 +1,92 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { toast } from "sonner";
 import Spinner from "./Spinner";
+import * as Y from "yjs";
+import { fetchContentFromDocumentData } from "@/lib/fetchContentFromDocumentData";
 
 const languages = [
-  "Mandarin Chinese",
-  "Spanish",
-  "English",
-  "Hindi",
-  "Bengali",
-  "Portuguese",
-  "Russian",
-  "Japanese",
-  "Western Punjabi",
-  "Marathi",
-  "Telugu",
-  "Wu Chinese (Shanghainese)",
-  "Turkish",
-  "Korean",
-  "French",
-  "German",
-  "Vietnamese",
-  "Tamil",
-  "Yue Chinese (Cantonese)",
-  "Urdu",
-  "Javanese",
+  { code: "en", name: "English" },
+  { code: "fr", name: "French" },
+  { code: "de", name: "German" },
+  { code: "es", name: "Spanish" },
+  { code: "pt", name: "Portuguese" },
+  { code: "it", name: "Italian" },
+  { code: "nl", name: "Dutch" },
+  { code: "ru", name: "Russian" },
+  { code: "zh", name: "Chinese" },
+  { code: "ja", name: "Japanese" },
+  { code: "ko", name: "Korean" },
+  { code: "ar", name: "Arabic" },
+  { code: "hi", name: "Hindi" },
+  { code: "bn", name: "Bengali" },
+  { code: "ur", name: "Urdu" },
+  { code: "ta", name: "Tamil" },
+  { code: "te", name: "Telugu" },
+  { code: "mr", name: "Marathi" },
+  { code: "gu", name: "Gujarati" },
+  { code: "pa", name: "Punjabi" },
+  { code: "vi", name: "Vietnamese" },
+  { code: "th", name: "Thai" },
+  { code: "tr", name: "Turkish" },
+  { code: "id", name: "Indonesian" },
+  { code: "ms", name: "Malay" },
+  { code: "fa", name: "Persian" },
+  { code: "he", name: "Hebrew" },
+  { code: "pl", name: "Polish" },
+  { code: "uk", name: "Ukrainian" },
+  { code: "ro", name: "Romanian" },
+  { code: "sv", name: "Swedish" },
+  { code: "fi", name: "Finnish" },
+  { code: "no", name: "Norwegian" },
+  { code: "da", name: "Danish" },
+  { code: "cs", name: "Czech" },
+  { code: "el", name: "Greek" },
+  { code: "hu", name: "Hungarian" },
+  { code: "sk", name: "Slovak" },
+  { code: "bg", name: "Bulgarian" },
+  { code: "hr", name: "Croatian" },
+  { code: "sr", name: "Serbian" },
+  { code: "sl", name: "Slovenian" },
+  { code: "lt", name: "Lithuanian" },
+  { code: "lv", name: "Latvian" },
+  { code: "et", name: "Estonian" },
+  { code: "sw", name: "Swahili" },
+  { code: "am", name: "Amharic" },
+  { code: "ne", name: "Nepali" },
+  { code: "si", name: "Sinhala" },
+  { code: "my", name: "Burmese" },
+  { code: "km", name: "Khmer" },
+  { code: "lo", name: "Lao" },
+  { code: "ka", name: "Georgian" },
+  { code: "hy", name: "Armenian" },
+  { code: "az", name: "Azerbaijani" },
+  { code: "kk", name: "Kazakh" },
+  { code: "uz", name: "Uzbek" },
 ];
 
-const text = `In a quiet village nestled between two hills, there stood an ancient tree known as the Whispering Tree. The villagers believed that if you sat under it at sunset and whispered your worries, the tree would whisper back with advice.
-
-One day, a curious boy named Aarav visited the tree. He sat beneath its branches and whispered,
-
-“I’m afraid of speaking in front of people. What if I forget my words?”
-
-The leaves rustled gently, though there was no wind, and a soft whisper came:
-
-“Bravery is not the absence of fear, but speaking even when your voice shakes.”
-
-Inspired, Aarav practiced every day. A week later, during the village festival, he stood before a crowd and told them the story of the Whispering Tree. His hands trembled, but his voice grew stronger with each word.
-
-When he finished, the crowd cheered. And deep within the forest, the old tree stood still—silent, but proud.`;
-
-const Translate = ({ setUI }: { setUI: Dispatch<SetStateAction<boolean>> }) => {
+const Translate = ({
+  setUI,
+  doc,
+}: {
+  setUI: Dispatch<SetStateAction<boolean>>;
+  doc: Y.Doc;
+}) => {
   const divRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(false);
   const [data, setData] = useState<string | null>(null);
   const [isTranslated, setIsTranslated] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState<string | undefined>(
     undefined
   );
+  const [isPending, startTransition] = useTransition();
 
   const handleClickOutside = (event: MouseEvent) => {
     if (divRef.current && !divRef.current.contains(event.target as Node)) {
@@ -62,36 +99,49 @@ const Translate = ({ setUI }: { setUI: Dispatch<SetStateAction<boolean>> }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  //translate the doc in provided languages
   async function onTranslating(language: string) {
     try {
-      setLoading(true);
       if (!language) return;
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/translate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, language }),
-      });
+      startTransition(async () => {
+        const documentData = doc.get("document-store").toJSON();
+        const content = fetchContentFromDocumentData(documentData);
 
-      const data = await res.json();
-      setIsTranslated(true);
-      setData(data.translation);
-      setCurrentLanguage(data.language);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_AI_AGENT_URL}/translateDocument`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              documentData: content,
+              targetLang: language,
+            }),
+          }
+        );
+
+        if (res.ok) {
+          const { translated_text } = await res.json();
+
+          setIsTranslated(true);
+          setData(translated_text);
+        } else {
+          throw new Error("Translation API error");
+        }
+      });
     } catch (err) {
       console.error(err);
       toast.error("Failed to translate. Try again");
-    } finally {
-      setLoading(false);
     }
   }
 
   return (
     <div
       ref={divRef}
-      className="fixed z-50 lg:left-1/2 left-4 top-24 transform -translate-x-1/2
+      className="absolute z-50 left-1/2 top-20 transform -translate-x-1/2
       bg-(--color-base-100) border border-(--color-base-300)
       text-(--color-base-content)
-      shadow-lg rounded-2xl p-6 w-[90%] lg:w-1/3 h-[70%] overflow-y-auto
+      shadow-lg rounded-2xl p-6 w-full lg:w-1/3 h-[70%] overflow-y-auto
       backdrop-blur-xl transition-all duration-300"
     >
       {/* Title */}
@@ -107,7 +157,7 @@ const Translate = ({ setUI }: { setUI: Dispatch<SetStateAction<boolean>> }) => {
           bg-(--color-base-200)/70 text-(--color-neutral-content-light)
           transition-all duration-300"
         >
-          {loading ? (
+          {isPending ? (
             <div className="flex items-center gap-3">
               <p>Translating...</p>
               <Spinner size={20} color="var(--color-primary)" />
@@ -118,7 +168,7 @@ const Translate = ({ setUI }: { setUI: Dispatch<SetStateAction<boolean>> }) => {
         </div>
       )}
 
-      {isTranslated && !loading && (
+      {isTranslated && !isPending && (
         <div
           className="min-h-28 border border-(--color-base-300)
           rounded-xl mt-4 p-5 bg-(--color-base-200)
@@ -136,7 +186,11 @@ const Translate = ({ setUI }: { setUI: Dispatch<SetStateAction<boolean>> }) => {
           Choose Language
         </label>
         <select
-          onChange={(e) => onTranslating(e.target.value)}
+          disabled={isPending}
+          onChange={(e) => {
+            e.preventDefault();
+            onTranslating(e.target.value);
+          }}
           className="w-full bg-(--color-base-200) border border-(--color-base-300)
           text-(--color-base-content) rounded-lg p-2
           focus:outline-none focus:ring-2 focus:ring-(--color-primary)
@@ -145,11 +199,12 @@ const Translate = ({ setUI }: { setUI: Dispatch<SetStateAction<boolean>> }) => {
           <option value="">Select...</option>
           {languages.map((language) => (
             <option
-              key={language}
-              value={language}
+              onClick={() => setCurrentLanguage(language.name)}
+              key={language.name}
+              value={language.code}
               className="bg-(--color-base-100) text-(--color-base-content)"
             >
-              {language}
+              {language.name}
             </option>
           ))}
         </select>

@@ -1,9 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import bcrypt from "bcryptjs";
+import React, { useState } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/button";
 import bgLight from "@/public/login-light.png";
@@ -25,7 +23,6 @@ type LoginData = {
 const Page = () => {
   const { theme } = useTheme();
   const [err, setErr] = useState<string>("");
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -57,7 +54,7 @@ const Page = () => {
       if (result.success) {
         window.location.href = `${process.env.NEXT_PUBLIC_URL}/home/${result.name}`;
       }
-    } catch (err) {
+    } catch {
       toast.error("Failed to log you in .Try again");
     }
   }

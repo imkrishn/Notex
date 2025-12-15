@@ -5,13 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import URLBox from "./URLBox";
 import Image from "next/image";
 import { useGetLoggedinUser } from "@/hooks/getLoggedInUser";
-import Spinner from "./Spinner";
 import InviteUser from "./InviteUser";
 import Publish from "./Publish";
-import { EllipsisVertical, Languages, RotateCw, Trash, X } from "lucide-react";
+import { EllipsisVertical, RotateCw, Trash, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import Translate from "./Translate";
 import ThemeToggle from "./ThemeToggle";
 import { databases } from "@/app/(root)/appwrite";
 import { updatePageData } from "@/lib/updatePageData";
@@ -21,6 +19,13 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import { setPageData } from "@/redux/slices/pageData";
 import PageSkeleton from "./ui/SkeletonPage";
+import { Query } from "appwrite";
+
+type SharedUserInfo = {
+  $id: string;
+  fullName: string;
+  email: string;
+};
 
 const Create = ({ pageId, edit }: { pageId: string; edit: boolean }) => {
   const { theme } = useTheme();
@@ -45,10 +50,9 @@ const Create = ({ pageId, edit }: { pageId: string; edit: boolean }) => {
   const [onInvitedClick, setOnInvitedClick] = useState<boolean>(false);
   const [onPublishClick, setOnPublishClick] = useState<boolean>(false);
   const [onMenuClick, setOnMenuClick] = useState<boolean>(false);
-  const [onTranslateClick, setOnTranslateClick] = useState(false);
   const [mount, setMount] = useState(false);
+  const [sharedUserInfo, setSharedUserInfo] = useState<SharedUserInfo[]>([]);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [text, setText] = useState<string | undefined>();
 
   const handleClickOutside = (event: MouseEvent) => {
     if (divRef.current && !divRef.current.contains(event.target as Node)) {
@@ -64,6 +68,44 @@ const Create = ({ pageId, edit }: { pageId: string; edit: boolean }) => {
       setOnMenuClick(false);
     }
   };
+
+  //get user info working on document
+
+  async function fetchUserWorkingOnDoc() {
+    try {
+      const roomData = await databases.listRows({
+        databaseId: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!,
+        tableId: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_SHARED_PAGES_ID!,
+        queries: [
+          Query.equal("pageId", pageId),
+          Query.notEqual("sharedUserId", loggedInUserId),
+          Query.equal("ownerId", loggedInUserId),
+        ],
+      });
+
+      if (roomData.total > 0) {
+        const userIds = roomData.rows.map((row) => row.sharedUserId);
+
+        //fetch user details
+        const usersData = await databases.listRows({
+          databaseId: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!,
+          tableId: process.env.NEXT_PUBLIC_APPWRITE_USER_COLLECTION_ID!,
+          queries: [Query.equal("$id", userIds)],
+        });
+
+        if (usersData.total > 0) {
+          const data = usersData.rows.map((user) => ({
+            $id: user.$id,
+            fullName: user.fullName,
+            email: user.email,
+          }));
+          setSharedUserInfo(data);
+        }
+      }
+    } catch (err) {
+      console.error("Error while fetching users working on doc :", err);
+    }
+  }
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -87,8 +129,10 @@ const Create = ({ pageId, edit }: { pageId: string; edit: boolean }) => {
           rowId: pageId,
         });
 
-        if (!page) {
-          return toast.error("No page found");
+        if (!page || page.isPublished !== false) {
+          toast.error("Page not found");
+          window.location.href = `${process.env.NEXT_PUBLIC_URL}/not-found`;
+          return;
         }
 
         const { title, coverUrl, logoUrl, isDeleted, ownerId } = page;
@@ -108,6 +152,7 @@ const Create = ({ pageId, edit }: { pageId: string; edit: boolean }) => {
 
     if (pageId && loggedInUserId) {
       fetchPageData();
+      fetchUserWorkingOnDoc();
     }
   }, [pageId, loggedInUserId]);
 
@@ -140,7 +185,7 @@ const Create = ({ pageId, edit }: { pageId: string; edit: boolean }) => {
     }
     setDeleteLoading(true);
     try {
-      await updatePageData(pageId, { isDeleted: true });
+      await updatePageData(pageId, { isDeleted: true, deletedAt: new Date() });
       setIsDeleted(true);
     } catch (err) {
       console.error("Error while moving to trash :", err);
@@ -200,7 +245,7 @@ const Create = ({ pageId, edit }: { pageId: string; edit: boolean }) => {
   return (
     <div
       className={cn(
-        "w-full h-screen flex justify-center transition-colors duration-300",
+        "w-full h-screen flex justify-center transition-colors duration-300 ",
         "bg-(--background) text-(--color-neutral-content)"
       )}
       data-theme={theme}
@@ -230,19 +275,38 @@ const Create = ({ pageId, edit }: { pageId: string; edit: boolean }) => {
             </div>
           )}
 
-          {/*  Translate modal */}
-          {onTranslateClick && <Translate setUI={setOnTranslateClick} />}
-
           {/* Top Bar */}
           {edit && isOwner && !isDeleted ? (
             <div className="flex  pt-3  justify-end px-6 items-center gap-1 relative">
+              <div className="lg:mx-7 mr-4">
+                <div
+                  className="flex items-center"
+                  title="Users working on document"
+                >
+                  {sharedUserInfo.map((user, index) => (
+                    <div
+                      key={user.$id}
+                      className="relative group hover:z-999999"
+                      style={{
+                        zIndex: index + 1,
+                        marginLeft: index * -12,
+                      }}
+                    >
+                      <Image
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          user.fullName
+                        )}&background=random&size=36`}
+                        alt={user.fullName}
+                        width={45}
+                        height={45}
+                        className="rounded-full  -ml-3 transition-all duration-200 ease-out  group-hover:scale-150 hover:z-999999"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <ThemeToggle />
-              <button
-                onClick={() => setOnTranslateClick((prev) => !prev)}
-                className="flex items-center gap-1 px-3 py-1 text-sm font-medium rounded-md text-(--color-neutral-content) hover:bg-(--color-base-200) transition"
-              >
-                <Languages size={15} /> Translate
-              </button>
 
               <button
                 onClick={() => setOnInvitedClick((prev) => !prev)}
@@ -281,9 +345,11 @@ const Create = ({ pageId, edit }: { pageId: string; edit: boolean }) => {
 
               {onInvitedClick && (
                 <InviteUser
+                  sharedUserInfo={sharedUserInfo}
                   loggedInUserId={loggedInUserId}
                   pageId={pageId}
                   setUI={setOnInvitedClick}
+                  setSharedUserInfo={setSharedUserInfo}
                 />
               )}
 
@@ -308,19 +374,13 @@ const Create = ({ pageId, edit }: { pageId: string; edit: boolean }) => {
               )}
             </div>
           ) : (
-            <div className="flex  pt-3 justify-end px-6 items-center gap-1 relative">
+            <div className="w-full flex items-center justify-end pr-7">
               <ThemeToggle />
-              <button
-                onClick={() => setOnTranslateClick((prev) => !prev)}
-                className="flex items-center gap-1 px-3 py-1 text-sm font-medium rounded-md text-(--color-neutral-content) hover:bg-(--color-base-200) transition"
-              >
-                <Languages size={15} /> Translate
-              </button>
             </div>
           )}
 
           {/* Page Section */}
-          <div className=" w-full h-full overflow-auto ">
+          <div className=" w-full h-full ">
             <div className=" w-full min-h-60 relative my-8">
               <div
                 onClick={() => {
@@ -398,7 +458,7 @@ const Create = ({ pageId, edit }: { pageId: string; edit: boolean }) => {
               placeholder="Untitled"
             />
             <Room roomId={roomId}>
-              <Editor pageId={pageId} />
+              <Editor pageId={pageId} edit={edit} />
             </Room>
           </div>
         </div>

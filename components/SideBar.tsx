@@ -19,7 +19,6 @@ import {
   Trash2,
   VenetianMask,
   Waypoints,
-  File,
 } from "lucide-react";
 import { useMediaQuery } from "usehooks-ts";
 import { cn } from "@/lib/utils";
@@ -29,7 +28,8 @@ import { databases } from "@/app/(root)/appwrite";
 import { ID, Query } from "appwrite";
 import Page from "./Page";
 import ThemeToggle from "./ThemeToggle";
-import { useTheme } from "next-themes";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export default function SideBar() {
   const router = useRouter();
@@ -40,6 +40,7 @@ export default function SideBar() {
 
   const [isPersonal, setIsPersonal] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [loadingSignout, setLoadingSignout] = useState(false);
   const [pages, setPages] = useState<PageType[]>([]);
   const [deletedPageId, setDeletedPageId] = useState<string | undefined>(
     undefined
@@ -55,7 +56,7 @@ export default function SideBar() {
     try {
       if (typeof window !== "undefined")
         localStorage.setItem("menu", JSON.stringify(m));
-    } catch (e) {}
+    } catch {}
     setMenuState(m);
   };
 
@@ -66,7 +67,7 @@ export default function SideBar() {
     if (menuValue) {
       try {
         setMenuState(JSON.parse(menuValue));
-      } catch (e) {
+      } catch {
         setMenuState(null);
       }
     }
@@ -82,7 +83,7 @@ export default function SideBar() {
     if (typeof window === "undefined") return;
     try {
       localStorage.setItem("sidebarWidth", sidebarWidth);
-    } catch (e) {}
+    } catch {}
   }, [sidebarWidth]);
 
   //sync ui on delete page
@@ -204,6 +205,8 @@ export default function SideBar() {
   //logout functionality
 
   async function logout() {
+    if (loadingSignout) return;
+    setLoadingSignout(true);
     try {
       await fetch("/api/auth/logout", {
         method: "POST",
@@ -213,6 +216,8 @@ export default function SideBar() {
     } catch (err) {
       console.error("Logout failed:", err);
       toast.error("Logout failed. Please try again.");
+    } finally {
+      setLoadingSignout(false);
     }
   }
 
@@ -421,7 +426,7 @@ export default function SideBar() {
             {profileOpen && (
               <div
                 className="
-    absolute left-4 bottom-20 w-[220px]
+    absolute left-4 bottom-20 w-55
     rounded-2xl p-3 shadow-xl backdrop-blur-sm border
     transition-transform hover:-translate-y-1
     bg-(--background)
@@ -439,8 +444,7 @@ export default function SideBar() {
       text-(--color-error)
       transition-all
       hover:bg-(--color-error-hover)/15%  py-1
-      focus:outline-none focus:ring-2 focus:ring-(--color-primary)
-      focus:ring-offset-1
+      
     "
                 >
                   <svg
@@ -458,7 +462,7 @@ export default function SideBar() {
          2 0 012-2h6a2 2 0 012 2v1"
                     />
                   </svg>
-                  Sign out
+                  {loadingSignout ? "Signing out..." : "Sign Out"}
                 </button>
               </div>
             )}

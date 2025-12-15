@@ -15,14 +15,24 @@ interface User {
   invited: boolean;
 }
 
+type SharedUserInfo = {
+  $id: string;
+  fullName: string;
+  email: string;
+};
+
 type Permission = "FULL_ACCESS" | "READ_ACCESS";
 
 const InviteUser = ({
   loggedInUserId,
+  sharedUserInfo,
+  setSharedUserInfo,
   pageId,
   setUI,
 }: {
   loggedInUserId: string | undefined;
+  sharedUserInfo: SharedUserInfo[];
+  setSharedUserInfo: React.Dispatch<React.SetStateAction<SharedUserInfo[]>>;
   pageId: string;
   setUI: (value: boolean) => void;
 }) => {
@@ -30,6 +40,8 @@ const InviteUser = ({
   const [permission, setPermission] = useState<Permission>("READ_ACCESS");
   const [loading, setLoading] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [sharedUsers, setSharedUsers] =
+    useState<SharedUserInfo[]>(sharedUserInfo);
   const [searchQuery, setSearchQuery] = useState("");
   const [err, setErr] = useState("");
   const [onHover, setOnHover] = useState(false);
@@ -121,6 +133,8 @@ const InviteUser = ({
     }
   }
 
+  //invite user for document
+
   async function onInviteUser() {
     if (!invitedUser || !invitedUser.email) {
       toast.error("Email is required");
@@ -149,6 +163,22 @@ const InviteUser = ({
       });
       toast.success("User Invited");
       setInvitedUser((prev) => ({ ...prev!, invited: true }));
+      setSharedUsers((prev) => [
+        ...prev,
+        {
+          $id: invitedUser.$id!,
+          fullName: invitedUser.fullName!,
+          email: invitedUser.email!,
+        },
+      ]);
+      setSharedUserInfo((prev: SharedUserInfo[]) => [
+        ...prev,
+        {
+          $id: invitedUser.$id!,
+          fullName: invitedUser.fullName!,
+          email: invitedUser.email!,
+        },
+      ]);
     } catch (Err) {
       console.log(Err);
       toast.error("Failed to invite user");
@@ -156,12 +186,13 @@ const InviteUser = ({
       setInviteLoading(false);
     }
   }
+  //disinvite user for document
 
-  async function onDisInviteuser() {
+  async function onDisInviteuser(email: string | undefined) {
     try {
-      if (!invitedUser || !invitedUser.email) {
+      if (!email) {
         toast.error("Email is required");
-        return;
+        return null;
       }
 
       setInviteLoading(true);
@@ -169,8 +200,9 @@ const InviteUser = ({
         databaseId: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!,
         tableId: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_SHARED_PAGES_ID!,
         queries: [
+          Query.equal("pageId", pageId),
           Query.equal("ownerId", loggedInUserId!),
-          Query.equal("email", invitedUser.email),
+          Query.equal("email", email),
         ],
       });
 
@@ -182,9 +214,13 @@ const InviteUser = ({
 
       toast.success("User Disinvited");
       setInvitedUser((prev) => ({ ...prev!, invited: false }));
-    } catch (Err) {
-      console.log(Err);
+      setSharedUsers((prev) => prev.filter((user) => user.email !== email));
+      setSharedUserInfo((prev: SharedUserInfo[]) =>
+        prev.filter((user) => user.email !== email)
+      );
+    } catch {
       toast.error("Failed to disinvite user");
+      return null;
     } finally {
       setInviteLoading(false);
     }
@@ -202,6 +238,62 @@ const InviteUser = ({
           size={20}
           className="cursor-pointer text-(--color-neutral-content-light) hover:text-(--color-error) transition-colors"
         />
+      </div>
+
+      {/*Invited User */}
+      <h3 className="text-lg font-semibold">Invite User</h3>
+
+      <div className="mt-4 max-h-[70vh]">
+        {sharedUsers.length === 0 ? (
+          <div className="rounded-xl px-4 py-6 my-2 text-center">
+            <p className="text-sm text-(--color-neutral-content-light)">
+              No users have been invited yet
+            </p>
+          </div>
+        ) : (
+          <div className="rounded-xl bg-(--color-base-100) shadow-sm my-2">
+            {/* List */}
+            <ul className="max-h-48 overflow-y-auto divide-y divide-(--color-base-300)">
+              {sharedUsers.map((user) => (
+                <li
+                  key={user.$id}
+                  className="flex items-center justify-between px-4 py-3
+            hover:bg-(--color-base-200) transition-colors"
+                >
+                  {/* User Info */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Avatar */}
+                    <div
+                      className="h-9 w-9 flex items-center justify-center
+                rounded-full bg-(--color-primary) text-(--color-primary-content)
+                font-semibold text-sm shrink-0"
+                    >
+                      {user.fullName?.[0]?.toUpperCase()}
+                    </div>
+
+                    {/* Name + Email */}
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {user.fullName}
+                      </p>
+                      <p className="text-xs text-(--color-neutral-content-light) truncate">
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action */}
+                  <button
+                    onClick={() => onDisInviteuser(user.email)}
+                    className="ml-3 text-xs font-medium px-3 py-1.5 rounded-lg cursor-pointer bg-(--color-error-soft) text-(--color-error)"
+                  >
+                    Disinvite
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Input */}
@@ -265,7 +357,11 @@ const InviteUser = ({
         {invitedUser && loggedInUserId !== ownerId && (
           <button
             disabled={inviteLoading}
-            onClick={invitedUser.invited ? onDisInviteuser : onInviteUser}
+            onClick={
+              invitedUser.invited
+                ? () => onDisInviteuser(invitedUser.email)
+                : onInviteUser
+            }
             className={cn(
               "mt-4 w-[92%] py-2 font-semibold rounded-lg transition-all duration-200",
               invitedUser.invited

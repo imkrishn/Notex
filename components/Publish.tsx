@@ -145,7 +145,7 @@ const Publish = ({
   return (
     <div
       ref={divRef}
-      className="absolute top-12 right-6 z-30 w-[380px] p-5 rounded-2xl shadow-lg border 
+      className="absolute top-12 right-6 z-30 w-95 p-5 rounded-2xl shadow-lg border 
       border-(--color-base-300)
       bg-(--color-base-100)
       text-(--color-base-content)

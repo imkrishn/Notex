@@ -2,6 +2,8 @@ import { tables } from "@/lib/appwriteServer";
 import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export async function POST(req: NextRequest) {
   try {
     const token = req.cookies.get("notex_session")?.value;

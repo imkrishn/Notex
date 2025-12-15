@@ -8,7 +8,6 @@ import {
   Trash,
   Search as SearchIcon,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import formatTime from "@/lib/formatTime";
@@ -26,9 +25,8 @@ const Search = ({
 }: {
   setMenu: React.Dispatch<React.SetStateAction<string>>;
 }) => {
-  const { theme } = useTheme();
   const router = useRouter();
-  const { id, name } = useGetLoggedinUser();
+  const { id } = useGetLoggedinUser();
   const loggedInUserId = id;
 
   const [query, setQuery] = useState("");
@@ -228,7 +226,6 @@ const Search = ({
   };
 
   const renderItem = (p: PageType, index: number) => {
-    const isShared = sharedPages.some((s) => s.$id === p.$id);
     const isFocused = focusedIndex === index;
     const processing = processingIds.has(p.$id);
 

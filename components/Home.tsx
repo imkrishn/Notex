@@ -13,6 +13,8 @@ import ThemeToggle from "./ThemeToggle";
 
 const PAGE_LIMIT = 10;
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export default function HomeInlineFetch() {
   const { id: userId, name } = useGetLoggedinUser();
   const router = useRouter();
@@ -165,7 +167,7 @@ export default function HomeInlineFetch() {
 
   return (
     <main className="min-h-screen p-8 bg-(--background) text-(--color-base-content)">
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-350 mx-auto">
         <header className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-extrabold leading-tight">
@@ -213,7 +215,7 @@ export default function HomeInlineFetch() {
 
           {!hasMore && !loading && pages.length > 0 && (
             <div className="text-sm text-(--color-neutral-content) py-2">
-              You're all caught up
+              You&apos;re all caught up
             </div>
           )}
 

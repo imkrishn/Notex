@@ -26,17 +26,7 @@ import { databases } from "@/app/(root)/appwrite";
 import { Query } from "appwrite";
 import { toast } from "sonner";
 
-/**
- * Trash component — fixed and functional
- *
- * Notes:
- * - Expects your Appwrite wrapper to expose:
- *     databases.listRows({ databaseId, tableId, queries })
- *     databases.updateRow({ databaseId, tableId, rowId, data })
- *     databases.deleteRow({ databaseId, tableId, rowId })
- *   If your wrapper uses different names (e.g., `getDocuments` / `updateDocument`),
- *   replace those calls accordingly.
- */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
 const PAGE_COL_ID = process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_PAGE_ID!;
@@ -48,7 +38,6 @@ function chunk<T>(arr: T[], size: number): T[][] {
 }
 
 function Trash({ setMenu }: { setMenu: Dispatch<SetStateAction<Menu>> }) {
-  // support multiple shapes returned by useGetLoggedInUser
   const user = useGetLoggedinUser();
   const userId = user.id;
 
@@ -67,7 +56,6 @@ function Trash({ setMenu }: { setMenu: Dispatch<SetStateAction<Menu>> }) {
   // Reset slide index when cardsPerView changes
   useEffect(() => setSlideIndex(0), [cardsPerView]);
 
-  // Fetch deleted pages; if reset === true, replace lists and reset cursor
   const fetchDeletedPages = useCallback(
     async (reset = false) => {
       if (!userId) return;
@@ -75,13 +63,12 @@ function Trash({ setMenu }: { setMenu: Dispatch<SetStateAction<Menu>> }) {
       setLoading(true);
 
       try {
-        // when resetting, clear cursor so we fetch from start
         const cursor = reset ? null : lastDocId;
         if (reset) {
           setLastDocId(null);
         }
 
-        const limit = cardsPerView * 3; // fetch a few frames worth
+        const limit = cardsPerView * 3;
         const queries: any[] = [
           Query.equal("ownerId", userId),
           Query.equal("isDeleted", true),
@@ -131,7 +118,6 @@ function Trash({ setMenu }: { setMenu: Dispatch<SetStateAction<Menu>> }) {
   // initial load
   useEffect(() => {
     fetchDeletedPages(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchDeletedPages]);
 
   useEffect(() => {
@@ -344,7 +330,7 @@ function Trash({ setMenu }: { setMenu: Dispatch<SetStateAction<Menu>> }) {
                         </div>
                       </div>
                     ))}
-                    {/* if frame has fewer than cardsPerView, fill with spacer(s) to keep layout stable */}
+
                     {frame.length < cardsPerView &&
                       Array.from({ length: cardsPerView - frame.length }).map(
                         (_, i) => (

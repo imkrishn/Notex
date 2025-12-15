@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { ID } from "appwrite";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 type Props = {
   setObjectClick: (value: boolean) => void;
   className: string;
@@ -78,9 +80,11 @@ const URLBox = forwardRef<HTMLDivElement, Props>(
           });
           if (fileHref) {
             setValue(fileHref);
-            isEmoji
-              ? await updatePageData(pageId, { logoUrl: fileHref })
-              : await updatePageData(pageId, { coverUrl: fileHref });
+            if (isEmoji) {
+              await updatePageData(pageId, { logoUrl: fileHref });
+            } else {
+              await updatePageData(pageId, { coverUrl: fileHref });
+            }
           }
         }
       } catch (error) {
@@ -117,7 +121,7 @@ const URLBox = forwardRef<HTMLDivElement, Props>(
           <div
             ref={ref}
             className={cn(
-              "rounded-xl shadow-lg z-99999 p-4 w-[370px] transition-all duration-200",
+              "rounded-xl shadow-lg z-99999 p-4 w-92.5 transition-all duration-200",
               "bg-(--color-base-100) border border-(--color-neutral)",
               "backdrop-blur-md backdrop-saturate-150",
               className
@@ -152,7 +156,7 @@ const URLBox = forwardRef<HTMLDivElement, Props>(
             {/* Body */}
             <div className="w-full py-2">
               {onClick === "emoji" && (
-                <div className="max-h-[300px] overflow-y-auto rounded-md">
+                <div className="max-h-75 overflow-y-auto rounded-md">
                   <EmojiPicker
                     theme={theme === "dark" ? Theme.DARK : Theme.LIGHT}
                     onEmojiClick={handleEmojiClick}

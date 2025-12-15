@@ -6,20 +6,11 @@ import { useSharedPages } from "@/hooks/getOwnedAndSharedPages";
 import { DotBackground } from "./ui/dot-background";
 import Spinner from "./Spinner";
 import { useRouter } from "next/navigation";
-import {
-  Search,
-  ExternalLink,
-  Download,
-  Copy,
-  X,
-  ArrowDown,
-  ArrowUp,
-  List,
-  Grid,
-  Link as LinkIcon,
-} from "lucide-react";
+import { Search, X, List, Grid, Link as LinkIcon } from "lucide-react";
 import Card from "./Card";
 import { PageType } from "@/types/pageType";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export default function SharedWithMeEnhanced() {
   const { id } = useGetLoggedinUser();

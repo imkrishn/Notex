@@ -1,35 +1,24 @@
-import { databases } from "../../appwrite";
+"use client";
+
 import Create from "@/components/Create";
-import { toast } from "sonner";
-import { redirect } from "next/navigation";
+import { LiveblocksProvider } from "@liveblocks/react";
+import { usePathname } from "next/navigation";
+import React from "react";
 
-async function checkIsPublished(pageId: string) {
-  if (!pageId) return false;
+const Main = () => {
+  const pathname = usePathname();
+  const params = pathname.split("/");
+  const pageId = params[2];
+  return (
+    <div>
+      <LiveblocksProvider
+        throttle={16}
+        authEndpoint={`/api/liveblocks-public?pageId=${pageId}`}
+      >
+        <Create pageId={pageId} edit={false} />
+      </LiveblocksProvider>
+    </div>
+  );
+};
 
-  try {
-    const page = await databases.getRow({
-      databaseId: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!,
-      tableId: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_PAGE_ID!,
-      rowId: pageId,
-    });
-
-    return !!page?.isPublished;
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to load. Try again");
-    return false;
-  }
-}
-
-export default async function Main({ params }: { params: { id: string } }) {
-  const pageId = params.id;
-
-  const isPublished = await checkIsPublished(pageId);
-
-  if (!isPublished) {
-    // Option 1: redirect to 404 or another page
-    redirect("/not-found");
-  }
-
-  return <Create pageId={pageId} edit={false} />;
-}
+export default Main;

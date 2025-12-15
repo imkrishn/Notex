@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (Err) {
-    console.error("Error while reset password");
+    console.error("Error while reset password", Err);
     return NextResponse.json(
       { message: "Failed to reset Password" },
       { status: 500 }

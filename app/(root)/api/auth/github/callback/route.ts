@@ -2,6 +2,8 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const preferredRegion = "auto";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { tables } from "@/lib/appwriteServer";
