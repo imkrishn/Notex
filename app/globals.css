@@ -1,0 +1,97 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --sidebar-background: #f5f5f5;
+    --sidebar-foreground: oklch(69.511% 0.01576 264.507);
+    --bn-colors-menu-background: #c8cdd4;
+    --color-primary: oklch(70% 0.18 230);
+    --color-primary-content: oklch(98% 0.02 220);
+    --color-info-soft: oklch(90% 0.05 210);
+    --color-info-content: oklch(40% 0.05 210);
+    --color-error: oklch(60% 0.15 20);
+    --color-error-hover: oklch(55% 0.15 20);
+    --color-base-100: oklch(98% 0.01 100);
+    --color-base-200: oklch(96% 0.01 100);
+    --color-base-300: oklch(92% 0.01 100);
+    --color-base-content: oklch(21.455% 0.00156 16.419 / 0.781);
+    --color-neutral-content: oklch(25.064% 0.03076 249.168 / 0.541);
+    --color-neutral-content-light: oklch(55% 0.02 250);
+    --radius-lg: 1rem;
+  }
+
+  .dark {
+    --background: #1f1f1f;
+    --sidebar-background: #121212;
+    --sidebar-foreground: oklch(85% 0.02 250);
+    --bn-colors-menu-background: #242525;
+    --color-primary: oklch(70% 0.18 260);
+    --color-primary-content: oklch(15% 0.02 260);
+    --color-info-soft: oklch(35% 0.05 240);
+    --color-info-content: oklch(85% 0.02 240);
+    --color-error: oklch(50% 0.15 25);
+    --color-error-hover: oklch(45% 0.15 25);
+    --color-base-100: oklch(20% 0.02 260);
+    --color-base-200: oklch(25% 0.02 260);
+    --color-base-300: oklch(30% 0.02 260);
+    --color-base-content: oklch(92.277% 0.0054 16.188);
+    --color-neutral-content: oklch(92% 0.02 260);
+    --color-neutral-content-light: oklch(70% 0.02 260);
+  }
+}
+
+.bn-suggestion-menu {
+  background-color: var(--bn-colors-menu-background);
+}
+
+/* Skeleton shimmer base */
+.skel-animate {
+  position: relative;
+  overflow: hidden;
+}
+
+.skel-animate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  opacity: 0.3;
+  animation: skel-shimmer 1.4s infinite linear;
+}
+
+/* dark mode shimmer override */
+.dark .skel-animate::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  opacity: 0.2;
+}
+
+/* shimmer animation */
+@keyframes skel-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+/* Optional overlay on cover */
+.skel-shimmer-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.04));
+}
