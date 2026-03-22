@@ -2,7 +2,7 @@
 
 import Create from "@/components/Create";
 import Home from "@/components/Home";
-
+import SharedWithMe from "@/components/SharedWithMe";
 import { LiveblocksProvider } from "@liveblocks/react";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
@@ -28,6 +28,8 @@ const Page = () => {
           <Create pageId={pageId} edit={true} />
         </LiveblocksProvider>
       )}
+
+      {pageName === "shared" && <SharedWithMe />}
     </div>
   );
 };

@@ -44,3 +44,5 @@ Notex is a modern, fast, and intuitive **note-taking web application** designed 
 - Built with modern full-stack best practices
 
 ---
+
+# Live Link - https://notex-kk.vercel.app
