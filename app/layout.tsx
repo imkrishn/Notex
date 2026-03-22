@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Toaster } from "sonner";
+import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
   title: {
@@ -95,7 +97,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={Roboto.variable}>
-      <body className="font-roboto antialiased">{children}</body>
+      <body className="font-roboto antialiased">
+        <Providers>{children}</Providers>
+        <Toaster position="top-center" richColors closeButton={true} />
+      </body>
     </html>
   );
 }
