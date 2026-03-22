@@ -1,7 +1,9 @@
 "use client";
 
+import Create from "@/components/Create";
 import Home from "@/components/Home";
 
+import { LiveblocksProvider } from "@liveblocks/react";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import "@liveblocks/react-ui/styles.css";
@@ -18,6 +20,14 @@ const Page = () => {
   return (
     <div className="h-full w-full overflow-y-auto overflow-x-clip">
       {pageName === "home" && <Home />}
+      {pageName === "page" && (
+        <LiveblocksProvider
+          throttle={16}
+          authEndpoint={`/api/liveblocks-auth?pageId=${pageId}`}
+        >
+          <Create pageId={pageId} edit={true} />
+        </LiveblocksProvider>
+      )}
     </div>
   );
 };
