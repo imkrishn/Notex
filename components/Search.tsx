@@ -34,7 +34,7 @@ const Search = ({
   const [debounced, setDebounced] = useState("");
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [processingIds, setProcessingIds] = useState<Set<string>>(
-    () => new Set()
+    () => new Set(),
   );
 
   // use the hooks
@@ -60,7 +60,7 @@ const Search = ({
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(
       () => setDebounced(query.trim()),
-      200
+      200,
     );
     return () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
@@ -145,7 +145,7 @@ const Search = ({
 
     if (p.isDeleted) {
       const confirmed = window.confirm(
-        "This page is already in Trash. Permanently delete? This cannot be undone."
+        "This page is already in Trash. Permanently delete? This cannot be undone.",
       );
       if (!confirmed) return;
       markProcessing(id, true);
@@ -280,7 +280,12 @@ const Search = ({
             </p>
           </div>
         </div>
-
+        <p
+          className="text-xs whitespace-nowrap"
+          style={{ color: "var(--color-neutral-content-light)" }}
+        >
+          {formatTime(p.$createdAt)}
+        </p>
         <div className="flex items-center gap-2 ml-2">
           {processing ? (
             <div
@@ -335,12 +340,6 @@ const Search = ({
             </button>
           )}
         </div>
-        <p
-          className="text-xs whitespace-nowrap"
-          style={{ color: "var(--color-neutral-content-light)" }}
-        >
-          {formatTime(p.$createdAt)}
-        </p>
       </div>
     );
   };

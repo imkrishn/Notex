@@ -148,7 +148,7 @@ const LandingPage = () => {
               className={cn(
                 "relative w-full max-w-md rounded-2xl p-6 shadow-2xl",
                 "border border-(--bn-colors-menu-background)",
-                "bg-[linear-gradient(180deg,var(--background)_80%,transparent_100%)"
+                "bg-[linear-gradient(180deg,var(--background)_80%,transparent_100%)",
               )}
             >
               <div className="absolute -top-6 -right-6 opacity-90"></div>

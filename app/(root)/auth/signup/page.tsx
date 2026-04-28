@@ -34,7 +34,7 @@ const UserSignupSchema = z
       .min(6, "Password must be of more than length 6")
       .regex(
         passwordRegex,
-        "Password must include uppercase, lowercase, number, and special character"
+        "Password must include uppercase, lowercase, number, and special character",
       ),
     confirmPassword: z.string(),
   })
@@ -168,7 +168,7 @@ export default function SignupPage() {
             onSubmit={handleSubmit(emailVerified ? onSubmit : onVerifyEmail)}
           >
             {/* Name Input */}
-            <span className="flex items-center gap-3 border border-[#b3b0b0] bg-[#8b8b8b2a] rounded-xl px-2">
+            <span className="flex items-center gap-3 border border-[#b3b0b0] bg-[#dadada2a] rounded-md px-2">
               <User size={21} />
               <input
                 {...register("fullName")}
@@ -185,7 +185,7 @@ export default function SignupPage() {
             )}
 
             {/* Email Input */}
-            <span className="flex items-center gap-3 border border-[#b3b0b0] bg-[#8b8b8b2a] rounded-xl px-2">
+            <span className="flex items-center gap-3 border border-[#b3b0b0] bg-[#dadada2a] rounded-md px-2">
               <Mail size={21} />
               <input
                 {...register("email")}
@@ -202,7 +202,7 @@ export default function SignupPage() {
             )}
 
             {/* Password Input */}
-            <span className="flex items-center gap-3 border border-[#b3b0b0] bg-[#8b8b8b2a] rounded-xl px-2">
+            <span className="flex items-center gap-3 border border-[#b3b0b0] bg-[#dadada2a] rounded-md px-2">
               <Lock size={21} />
               <input
                 {...register("password")}
@@ -219,7 +219,7 @@ export default function SignupPage() {
             )}
 
             {/* Confirm Password Input */}
-            <span className="flex items-center gap-3 border border-[#b3b0b0] bg-[#8b8b8b2a] rounded-xl px-2">
+            <span className="flex items-center gap-3 border border-[#b3b0b0] bg-[#dadada2a] rounded-md px-2">
               <Lock size={21} />
               <input
                 {...register("confirmPassword")}
@@ -266,15 +266,15 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isSubmitting || loading}
-              className="w-full rounded-2xl text-center py-2 cursor-pointer active:scale-95 font-medium bg-[#3897E4] text-[#f8f7f7]"
+              className="w-full rounded-xl text-center py-2 cursor-pointer active:scale-95 font-medium bg-[#3897E4] text-[#f8f7f7]"
             >
               {isSubmitting
                 ? emailVerified
                   ? "Verifying..."
                   : "Sending OTP..."
                 : emailVerified
-                ? "Verify & Signup"
-                : "Verify Email"}
+                  ? "Verify & Signup"
+                  : "Verify Email"}
             </button>
           </form>
         </aside>

@@ -88,7 +88,7 @@ const Page = () => {
             onSubmit={handleSubmit(onSubmit)}
             className="w-max h-full m-auto flex flex-col gap-3 justify-center"
           >
-            <span className="flex items-center gap-3 border  border-[#b3b0b0] rounded-xl px-3">
+            <span className="flex items-center gap-3 border  border-[#b3b0b0] rounded-md px-3">
               <Mail size={25} />
               <input
                 disabled={isSubmitting}
@@ -104,7 +104,7 @@ const Page = () => {
               </p>
             )}
 
-            <span className="flex items-center gap-3 border  border-[#b3b0b0] rounded-xl px-3">
+            <span className="flex items-center gap-3 border  border-[#b3b0b0] rounded-md px-3">
               <Lock size={25} />
               <input
                 disabled={isSubmitting}
@@ -129,8 +129,8 @@ const Page = () => {
             <button
               disabled={isSubmitting}
               className={cn(
-                "w-full rounded-2xl text-center py-2 cursor-pointer active:scale-95  font-medium bg-(--color-primary) text-(--color-primary-content)",
-                isSubmitting && "bg-[#1f639b]"
+                "w-full rounded-2xl text-white text-center py-2 cursor-pointer active:scale-95  font-medium bg-(--color-primary) ",
+                isSubmitting && "bg-[#1f639b]",
               )}
             >
               {isSubmitting ? "Logging" : "Login"}
